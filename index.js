@@ -15,24 +15,25 @@ app.set("trust proxy", 1);
 // CORS FIXED COMPLETELY
 // ----------------------
 const allowedOrigins = [
-    process.env.CLIENT_URL,          // Netlify frontend
-    "http://localhost:5173",         // Local development
+    process.env.CLIENT_URL,             // Netlify (HTTPS)
+    "http://localhost:5173",            // Local development
 ];
 
 app.use(
     cors({
         origin: function (origin, callback) {
-            // Allow requests with no origin (Postman, server-side)
+
             if (!origin) return callback(null, true);
 
             if (allowedOrigins.includes(origin)) {
                 callback(null, true);
             } else {
+                console.log("❌ Blocked by CORS:", origin);
                 callback(new Error("Not allowed by CORS"));
             }
         },
-        methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE"],
     })
 );
 
