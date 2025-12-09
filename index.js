@@ -30,6 +30,10 @@ app.use((req, res, next) => {
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     }
 
+    // Fix COOP warning
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+
     // Handle preflight
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
