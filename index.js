@@ -43,8 +43,8 @@ app.use(express.json());
 // ----------------------
 // ROUTES
 // ----------------------
-app.use("/api/services", require("./routes/services"));
-app.use("/api/bookings", require("./routes/bookings"));
+app.use("/services", require("./routes/services"));
+app.use("/bookings", require("./routes/bookings"));
 
 // DEFAULT ROUTE
 app.get("/", (req, res) => {
