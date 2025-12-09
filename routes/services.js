@@ -2,32 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Service = require("../models/Service");
 const verifyFirebaseToken = require("../middleware/verifyFirebaseToken");
-const cors = require("cors");
 
 // -------------------
-// Allow CORS for ALL routes in this router
-// -------------------
-const allowedOrigins = [
-    "https://home-hero-b12a10-client.netlify.app",
-    "http://localhost:5173",
-];
-
-router.use(
-    cors({
-        origin: function (origin, callback) {
-            if (!origin) return callback(null, true);
-            if (allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        credentials: true,
-    })
-);
-
-// -------------------
-// ROUTES
+// ROUTES (CORS is handled globally in index.js)
 // -------------------
 
 // CREATE SERVICE (Protected)
@@ -49,15 +26,9 @@ router.get("/top-rated", async (req, res) => {
             .sort({ averageRating: -1, createdAt: -1 })
             .limit(6);
 
-        // ✅ Ensure CORS header is always sent
-        res.set("Access-Control-Allow-Origin", "https://home-hero-b12a10-client.netlify.app");
-        res.set("Access-Control-Allow-Credentials", "true");
-
         res.json(services);
     } catch (error) {
         console.error("Get Top Services Error:", error);
-        res.set("Access-Control-Allow-Origin", "https://home-hero-b12a10-client.netlify.app");
-        res.set("Access-Control-Allow-Credentials", "true");
         res.status(500).json({ success: false, message: "Server Error" });
     }
 });
@@ -68,13 +39,9 @@ router.get("/my-services/:email", verifyFirebaseToken, async (req, res) => {
         const services = await Service.find({
             providerEmail: req.params.email,
         }).sort({ createdAt: -1 });
-        res.set("Access-Control-Allow-Origin", "https://home-hero-b12a10-client.netlify.app");
-        res.set("Access-Control-Allow-Credentials", "true");
         res.json(services);
     } catch (error) {
         console.error("Get My Services Error:", error);
-        res.set("Access-Control-Allow-Origin", "https://home-hero-b12a10-client.netlify.app");
-        res.set("Access-Control-Allow-Credentials", "true");
         res.status(500).json({ success: false, message: "Server Error" });
     }
 });

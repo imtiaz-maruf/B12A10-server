@@ -12,17 +12,18 @@ const app = express();
 app.set("trust proxy", 1);
 
 // ----------------------
-// CORS FIXED COMPLETELY
+// CORS CONFIGURATION
 // ----------------------
 const allowedOrigins = [
     process.env.CLIENT_URL,             // Netlify (HTTPS)
+    "https://home-hero-b12a10-client.netlify.app", // Explicitly add this
     "http://localhost:5173",            // Local development
 ];
 
 app.use(
     cors({
         origin: function (origin, callback) {
-
+            // Allow requests with no origin (like mobile apps or curl requests)
             if (!origin) return callback(null, true);
 
             if (allowedOrigins.includes(origin)) {
@@ -33,9 +34,13 @@ app.use(
             }
         },
         credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE"],
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
+
+// Handle preflight requests
+app.options("*", cors());
 
 // Body parser
 app.use(express.json());
