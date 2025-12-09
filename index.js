@@ -12,35 +12,31 @@ const app = express();
 app.set("trust proxy", 1);
 
 // ----------------------
-// CORS CONFIGURATION
+// CORS CONFIGURATION FOR VERCEL
 // ----------------------
 const allowedOrigins = [
-    process.env.CLIENT_URL,             // Netlify (HTTPS)
-    "https://home-hero-b12a10-client.netlify.app", // Explicitly add this
-    "http://localhost:5173",            // Local development
+    "https://home-hero-b12a10-client.netlify.app",
+    "http://localhost:5173",
 ];
 
-app.use(
-    cors({
-        origin: function (origin, callback) {
-            // Allow requests with no origin (like mobile apps or curl requests)
-            if (!origin) return callback(null, true);
+// Custom CORS middleware that works on Vercel
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
 
-            if (allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                console.log("❌ Blocked by CORS:", origin);
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-    })
-);
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    }
 
-// Handle preflight requests
-app.options("*", cors());
+    // Handle preflight
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    next();
+});
 
 // Body parser
 app.use(express.json());
@@ -56,8 +52,16 @@ app.get("/", (req, res) => {
     res.json({ message: "HomeHero API is running..." });
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error("Error:", err);
+    res.status(500).json({ success: false, message: err.message || "Server Error" });
+});
+
 // SERVER LISTEN
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
 });
+
+module.exports = app; // Export for Vercel

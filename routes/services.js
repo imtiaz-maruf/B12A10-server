@@ -3,10 +3,6 @@ const router = express.Router();
 const Service = require("../models/Service");
 const verifyFirebaseToken = require("../middleware/verifyFirebaseToken");
 
-// -------------------
-// ROUTES (CORS is handled globally in index.js)
-// -------------------
-
 // CREATE SERVICE (Protected)
 router.post("/", verifyFirebaseToken, async (req, res) => {
     try {
