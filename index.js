@@ -50,7 +50,6 @@ app.use(express.json());
 // ----------------------
 app.use("/services", require("./routes/services"));
 app.use("/bookings", require("./routes/bookings"));
-app.use("/users", require("./routes/users"));
 
 
 // DEFAULT ROUTE
