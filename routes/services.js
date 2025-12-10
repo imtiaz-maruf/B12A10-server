@@ -11,6 +11,14 @@ router.post("/", verifyFirebaseToken, async (req, res) => {
         res.status(201).json({ success: true, data: service });
     } catch (error) {
         console.error("Create Service Error:", error);
+
+        // FIX: Handle Mongoose Validation Errors (e.g., missing providerEmail)
+        if (error.name === 'ValidationError') {
+            // Return 400 for bad client input
+            return res.status(400).json({ success: false, message: error.message });
+        }
+
+        // Return 500 for true server errors
         res.status(500).json({ success: false, message: "Server Error" });
     }
 });
@@ -103,7 +111,7 @@ router.put("/:id", verifyFirebaseToken, async (req, res) => {
         const service = await Service.findByIdAndUpdate(
             req.params.id,
             req.body,
-            { new: true, runValidators: true }
+            { new: true, runValidators: true } // runValidators: true is necessary for Mongoose to check schema constraints
         );
         if (!service) {
             return res.status(404).json({ success: false, message: "Service not found" });
@@ -111,6 +119,14 @@ router.put("/:id", verifyFirebaseToken, async (req, res) => {
         res.json({ success: true, data: service });
     } catch (error) {
         console.error("Update Service Error:", error);
+
+        // FIX: Handle Mongoose Validation Errors
+        if (error.name === 'ValidationError') {
+            // Return 400 for bad client input
+            return res.status(400).json({ success: false, message: error.message });
+        }
+
+        // Return 500 for true server errors
         res.status(500).json({ success: false, message: "Server Error" });
     }
 });
